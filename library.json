@@ -1,0 +1,46 @@
+#Python Crash Course
+book_1 = {
+    "title": "Python Crash Course",
+    "author": "Eric Matthes",
+    "publication_year": 2019,
+    "genre": "Programming",
+    "read_status": False,
+    "added_date": "2023-03-11 12:12:40"
+}
+#Clean Code
+book_2 = {
+    "title": "Clean Code",
+    "author": "Robert C. Martin",
+    "publication_year": 2008,
+    "genre": "Software Development",
+    "read_status": True,
+    "added_date": "2022-07-05 09:30:15"
+}
+#The Pragmatic Programmer
+
+book_3 = {
+    "title": "The Pragmatic Programmer",
+    "author": "Andrew Hunt",
+    "publication_year": 1999,
+    "genre": "Programming",
+    "read_status": False,
+    "added_date": "2024-01-20 16:45:00"
+}
+#Deep Learning
+book_4 = {
+    "title": "Deep Learning",
+    "author": "Ian Goodfellow",
+    "publication_year": 2016,
+    "genre": "Artificial Intelligence",
+    "read_status": True,
+    "added_date": "2023-11-30 10:00:00"
+}
+#Atomic Habits
+book_5 = {
+    "title": "Atomic Habits",
+    "author": "James Clear",
+    "publication_year": 2018,
+    "genre": "Self-Help",
+    "read_status": True,
+    "added_date": "2024-02-28 14:20:55"
+}
