@@ -20,23 +20,7 @@ st.set_page_config(
 # Custom CSS for styling with background image
 st.markdown("""
 <style>
-    .stApp {
-        background-image: url("https://images.unsplash.com/photo-1497633762265-9d179a990aa6");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-    }
-    .stApp::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(255, 255, 255, 0.92);
-        z-index: -1;
-    }
+    
     .main-header {
         font-size: 3rem !important;
         font-weight: 600;
