@@ -116,21 +116,22 @@ if 'book_removed' not in st.session_state:
     st.session_state.book_removed = False
 if 'current_view' not in st.session_state:
     st.session_state.current_view = "📚 View Library"
-
 def load_library():
     try:
         if os.path.exists('library.json'):
+            # Check if file is empty
+            if os.stat('library.json').st_size == 0:
+                st.session_state.library = []
+                return
+                
             with open('library.json', 'r') as file:
                 st.session_state.library = json.load(file)
+    except json.JSONDecodeError as e:
+        st.error(f"🚨 Error decoding JSON: {e}. Starting with an empty library.")
+        st.session_state.library = []
     except Exception as e:
         st.error(f"🚨 Error loading library: {str(e)}")
-
-def save_library():
-    try:
-        with open('library.json', 'w') as file:
-            json.dump(st.session_state.library, file)
-    except Exception as e:
-        st.error(f"🚨 Error saving library: {str(e)}")
+        st.session_state.library = []
 
 def add_book(title, author, publication_year, genre, read_status):
     book = {
