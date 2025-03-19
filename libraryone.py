@@ -1,3 +1,4 @@
+library.py
 import streamlit as st
 import pandas as pd
 import json
@@ -20,7 +21,6 @@ st.set_page_config(
 # Custom CSS for styling with background image
 st.markdown("""
 <style>
-    
     .main-header {
         font-size: 3rem !important;
         font-weight: 600;
@@ -79,6 +79,21 @@ st.markdown("""
     .stButton>button {
         border-radius: 0.375rem !important;
     }
+    /* Background image styling */
+    .stApp {
+        background-image: url("https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=1950");
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+    }
+    /* Add translucent background to content */
+    .main .block-container {
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 2rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -100,10 +115,17 @@ if 'book_removed' not in st.session_state:
     st.session_state.book_removed = False
 if 'current_view' not in st.session_state:
     st.session_state.current_view = "📚 View Library"
+
+def save_library():
+    try:
+        with open('library.json', 'w') as file:
+            json.dump(st.session_state.library, file, indent=4)
+    except Exception as e:
+        st.error(f"🚨 Error saving library: {str(e)}")
+
 def load_library():
     try:
         if os.path.exists('library.json'):
-            # Check if file is empty
             if os.stat('library.json').st_size == 0:
                 st.session_state.library = []
                 return
@@ -266,9 +288,10 @@ if st.session_state.current_view == "➕ Add Book":
             )
         with col2:
             genre = st.selectbox("📚 Genre", [
-                "Fiction", "Non-Fiction", "Science", "Technology",
-                "Romance", "Poetry", "Self-Help", "Art", "History",
-                "Music", "Religion"
+                "Programming", "Software Development", 
+                "Artificial Intelligence", "Self-Help", 
+                "Fiction", "Non-Fiction", "Science", 
+                "Technology", "History", "Art"
             ])
             read_status = st.radio("✅ Read Status", ["Read", "Unread"], horizontal=True)
         
@@ -373,4 +396,13 @@ elif st.session_state.current_view == "📊 Library Statistics":
 
 # Footer
 st.markdown("---")
-st.markdown("Copyright © 2024 - Farida Bano Personal Library Manager 📚❤️", unsafe_allow_html=True)
+st.markdown("""
+<div style='text-align: center; padding: 1rem;'>
+    <p>Copyright © 2024 - Farida Bano Personal Library Manager 📚❤️</p>
+    <div style='display: flex; justify-content: center; gap: 1rem;'>
+        <img src='https://cdn-icons-png.flaticon.com/512/2111/2111425.png' width='30'>
+        <img src='https://cdn-icons-png.flaticon.com/512/174/174857.png' width='30'>
+        <img src='https://cdn-icons-png.flaticon.com/512/733/733579.png' width='30'>
+    </div>
+</div>
+""", unsafe_allow_html=True)
