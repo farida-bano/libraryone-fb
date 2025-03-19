@@ -21,7 +21,7 @@ st.set_page_config(
 st.markdown("""
 <style>
     .stApp {
-        background-image: url("https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-1.2.1");
+        background-image: url("images/downliad.jpg");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
