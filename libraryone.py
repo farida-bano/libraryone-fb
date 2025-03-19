@@ -39,7 +39,7 @@ st.markdown("""
     }
     .main-header {
         font-size: 3rem !important;
-        font-weight: 700;
+        font-weight: 600;
         margin-bottom: 1rem;
         text-align: center;
         text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
