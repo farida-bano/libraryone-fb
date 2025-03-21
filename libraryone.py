@@ -79,19 +79,19 @@ st.markdown("""
         border-radius: 0.375rem !important;
     }
     /* Background image styling */
+st.markdown("""
+<style>
     .stApp {
-        background-image: url("https://unsplash.com/photos/a-stack-of-books-sitting-on-top-of-each-other-16HDTsj-t7w");
+        background-image: url("https://images.unsplash.com/photo-1495446815901-a7297e633e8d");
         background-size: cover;
         background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
     }
-    /* Add translucent background to content */
+    /* Add more padding to content container */
     .main .block-container {
-        background-color: rgba(255, 255, 255, 0.9);
-        padding: 2rem;
+        background-color: rgba(255, 255, 255, 0.95);
+        padding: 3rem;
         border-radius: 1rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
     }
 </style>
 """, unsafe_allow_html=True)
