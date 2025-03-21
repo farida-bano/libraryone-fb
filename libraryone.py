@@ -80,7 +80,7 @@ st.markdown("""
     }
     /* Background image styling */
     .stApp {
-        background-image: url("https://www.istockphoto.com/photo/empty-book-template-on-white-background-gm1459829520-494141149?utm_campaign=srp_photos_bottom&utm_content=https%3A%2F%2Funsplash.com%2Fs%2Fphotos%2Fbooks-image&utm_medium=affiliate&utm_source=unsplash&utm_term=books+image%3A%3A%3A");
+        background-image: url("https://unsplash.com/photos/a-stack-of-books-sitting-on-top-of-each-other-16HDTsj-t7w");
         background-size: cover;
         background-position: center;
         background-repeat: no-repeat;
