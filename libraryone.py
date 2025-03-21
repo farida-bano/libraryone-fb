@@ -3,13 +3,9 @@ import pandas as pd
 import json
 import os
 from datetime import datetime
-import time
-import plotly.express as px
 import plotly.graph_objects as go
-from streamlit_lottie import st_lottie
-import requests
 
-# Set page configuration
+# --- Set Page Configuration ---
 st.set_page_config(
     page_title="Personal Library Management System",
     page_icon="📚",
@@ -17,123 +13,171 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS
-st.markdown("""
-<style>
-    .main-header { font-size: 3rem !important; font-weight: 600; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
-    .sub-header { font-size: 1.8rem !important; color: #3882f6; font-weight: 600; margin-bottom: 1rem; }
-    .success-message { padding: 1rem; background-color: #ECFDF5; border-left: 5px solid #1f2937; border-radius: 0.375rem; margin-bottom: 1rem; }
-    .warning-message { padding: 1rem; background-color: #fef3c7; border-left: 5px solid #f59e0b; border-radius: 0.375rem; margin-bottom: 1rem; }
-    .book-card { background-color: #f3f4f6; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; border-left: 5px solid #3882f6; transition: transform 0.3s ease; }
-    .book-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-    .read-badge { background-color: #108981; color: white; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600; }
-    .unread-badge { background-color: #F87171; color: white; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.875rem; font-weight: 600; }
-    .stButton>button { border-radius: 0.375rem !important; }
-    .stApp { background-image: url("https://images.unsplash.com/photo-1495446815901-a7297e633e8d"); background-size: cover; background-position: center; }
-    .main .block-container { background-color: rgba(255, 255, 255, 0.95); padding: 3rem; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2); }
-</style>
-""", unsafe_allow_html=True)
+# --- Apply Background Image ---
+def set_background(image_file):
+    """Sets a background image for the Streamlit app."""
+    page_bg_img = f"""
+    <style>
+    .stApp {{
+        background: url({image_file});
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }}
+    </style>
+    """
+    st.markdown(page_bg_img, unsafe_allow_html=True)
 
-# Functions
-def load_lottieurl(url):
-    try:
-        r = requests.get(url)
-        return r.json() if r.status_code == 200 else None
-    except:
-        return None
+# Call the function to set background
+set_background("farida.jpg")  # Make sure the image is in the same directory
 
-def save_library():
-    with open('library.json', 'w') as file:
-        json.dump(st.session_state.library, file, indent=4)
+# --- Constants ---
+LIBRARY_FILE = "library.json"
 
-def load_library():
-    if os.path.exists('library.json'):
-        try:
-            with open('library.json', 'r') as file:
-                data = file.read()
-                st.session_state.library = json.loads(data) if data else []
-        except json.JSONDecodeError:
-            st.session_state.library = []
+# --- Ensure Required Files Exist ---
+def initialize_library():
+    """Ensures that the library.json file exists and is correctly formatted."""
+    if not os.path.exists(LIBRARY_FILE) or os.stat(LIBRARY_FILE).st_size == 0:
+        with open(LIBRARY_FILE, "w") as f:
+            json.dump([], f)
     else:
+        try:
+            with open(LIBRARY_FILE, "r") as file:
+                json.load(file)  # Try loading JSON to check validity
+        except json.JSONDecodeError:
+            with open(LIBRARY_FILE, "w") as f:
+                json.dump([], f)  # Reset to empty list if invalid
+
+initialize_library()
+
+# --- Load and Save Library Data ---
+def load_library():
+    """Loads books from JSON file into session state."""
+    try:
+        with open(LIBRARY_FILE, "r") as file:
+            st.session_state.library = json.load(file)
+    except Exception as e:
+        st.error(f"Error loading library: {e}")
         st.session_state.library = []
 
-def add_book(title, author, publication_year, genre, read_status):
-    st.session_state.library.append({
-        'title': title.strip(),
-        'author': author.strip(),
-        'publication_year': publication_year,
-        'genre': genre,
-        'read_status': read_status,
-        'added_date': datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    })
-    save_library()
-    st.success("✅ Book added successfully!")
-    st.rerun()
+def save_library():
+    """Saves session state library to JSON file."""
+    try:
+        with open(LIBRARY_FILE, "w") as file:
+            json.dump(st.session_state.library, file, indent=4)
+    except Exception as e:
+        st.error(f"Error saving library: {e}")
 
-def remove_book(index):
-    del st.session_state.library[index]
-    save_library()
-    st.success("🗑️ Book removed successfully!")
-    st.rerun()
-
-# Load Library Data
-if 'library' not in st.session_state:
+# Load library at startup
+if "library" not in st.session_state:
+    st.session_state.library = []
     load_library()
 
-# Sidebar
-st.sidebar.markdown("<h1 style='text-align: center;'>📚 Navigation</h1>", unsafe_allow_html=True)
-lottie_book = load_lottieurl("https://assets9.lottiefiles.com/packages/lf20_yr6xtg8o.json")
-if lottie_book:
-    st_lottie(lottie_book, height=150, key='book_animation')
+# --- Add a Book ---
+def add_book(title, author, year, genre, read_status):
+    """Adds a new book to the library."""
+    new_book = {
+        "title": title,
+        "author": author,
+        "publication_year": year,
+        "genre": genre,
+        "read_status": read_status,
+        "added_date": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    }
+    st.session_state.library.append(new_book)
+    save_library()
+    st.success("Book added successfully!")
+    st.balloons()
 
-page = st.sidebar.radio("Choose an option:", ["📚 View Library", "➕ Add Book"])
+# --- Remove a Book ---
+def remove_book(index):
+    """Removes a book from the library."""
+    if 0 <= index < len(st.session_state.library):
+        del st.session_state.library[index]
+        save_library()
+        st.success("Book removed successfully!")
+        st.experimental_rerun()
 
-# Main
-st.markdown("<h1 class='main-header'>📚 Personal Library Manager</h1>", unsafe_allow_html=True)
+# --- Search Books ---
+def search_books(term, search_by):
+    """Searches for books based on title, author, or genre."""
+    term = term.lower()
+    return [book for book in st.session_state.library if term in book[search_by].lower()]
 
-if page == "➕ Add Book":
-    st.markdown("<h2 class='sub-header'>➕ Add New Book</h2>", unsafe_allow_html=True)
-    
-    with st.form(key='add_book_form'):
-        col1, col2 = st.columns(2)
-        with col1:
-            title = st.text_input("📖 Book Title")
-            author = st.text_input("✍️ Author")
-            publication_year = st.number_input("📅 Publication Year", min_value=1000, max_value=datetime.now().year, value=2023)
-        with col2:
-            genre = st.selectbox("📚 Genre", ["Fiction", "Non-Fiction", "Technology", "History", "Self-Help"])
-            read_status = st.radio("✅ Read Status", ["Read", "Unread"], horizontal=True)
+# --- Sidebar Navigation ---
+st.sidebar.header("📚 Navigation")
+nav_option = st.sidebar.radio(
+    "Select an option:",
+    ["🏠 View Library", "➕ Add Book", "🔍 Search Books", "📊 Library Statistics"]
+)
+
+# --- Main Content ---
+st.title("📚 Personal Library Manager")
+
+if nav_option == "➕ Add Book":
+    st.subheader("➕ Add a New Book")
+    with st.form("add_book_form"):
+        title = st.text_input("Book Title", max_chars=100)
+        author = st.text_input("Author", max_chars=100)
+        year = st.number_input("Publication Year", min_value=1000, max_value=datetime.now().year, value=2023)
+        genre = st.selectbox("Genre", ["Fiction", "Non-Fiction", "Science", "Technology", "History", "Romance", "Poetry"])
+        read_status = st.radio("Read Status", ["Read ✅", "Unread 📖"])
         
-        if st.form_submit_button(label="➕ Add Book"):
-            add_book(title, author, publication_year, genre, read_status == "Read")
+        if st.form_submit_button("Add Book"):
+            if title and author:
+                add_book(title, author, year, genre, read_status == "Read ✅")
+            else:
+                st.warning("Please fill in all fields!")
 
-elif page == "📚 View Library":
-    st.markdown("<h2 class='sub-header'>📚 Your Library Collection</h2>", unsafe_allow_html=True)
-
+elif nav_option == "🏠 View Library":
+    st.subheader("📚 Your Library")
     if not st.session_state.library:
-        st.warning("📭 Your library is empty. Add some books to get started!")
+        st.info("No books found. Add some books to get started!")
     else:
         for i, book in enumerate(st.session_state.library):
-            with st.container():
-                st.markdown(f"""
-                <div class='book-card'>
-                    <h3>📖 {book['title']}</h3>
-                    <p><strong>✍️ Author:</strong> {book['author']}</p>
-                    <p><strong>📅 Published:</strong> {book['publication_year']}</p>
-                    <p><strong>📚 Genre:</strong> {book['genre']}</p>
-                    <p><span class='{"read-badge" if book["read_status"] else "unread-badge"}'>
-                        {"✅ Read" if book["read_status"] else "📖 Unread"}
-                    </span></p>
-                </div>
-                """, unsafe_allow_html=True)
-                
+            with st.expander(f"{book['title']} by {book['author']}"):
+                st.write(f"**Publication Year:** {book['publication_year']}")
+                st.write(f"**Genre:** {book['genre']}")
+                st.write(f"**Status:** {'✅ Read' if book['read_status'] else '📖 Unread'}")
                 col1, col2 = st.columns(2)
                 with col1:
-                    if st.button("🗑️ Remove", key=f"remove_{i}"):
+                    if st.button("Remove", key=f"remove_{i}"):
                         remove_book(i)
                 with col2:
-                    new_status = not book['read_status']
-                    if st.button("✅ Toggle Read Status", key=f"status_{i}"):
-                        st.session_state.library[i]['read_status'] = new_status
+                    if st.button("Toggle Read Status", key=f"toggle_{i}"):
+                        st.session_state.library[i]['read_status'] = not book['read_status']
                         save_library()
-                        st.rerun()          
+                        st.experimental_rerun()
+
+elif nav_option == "🔍 Search Books":
+    st.subheader("🔍 Search Books")
+    search_by = st.selectbox("Search by", ["title", "author", "genre"])
+    search_term = st.text_input("Enter search term")
+    
+    if st.button("Search"):
+        if search_term:
+            results = search_books(search_term, search_by)
+            if results:
+                st.success(f"Found {len(results)} result(s).")
+                for book in results:
+                    st.write(f"📖 **{book['title']}** by {book['author']} ({book['publication_year']})")
+            else:
+                st.warning("No matching books found.")
+
+elif nav_option == "📊 Library Statistics":
+    st.subheader("📊 Library Statistics")
+    total_books = len(st.session_state.library)
+    read_books = sum(1 for book in st.session_state.library if book['read_status'])
+    unread_books = total_books - read_books
+    
+    st.metric("Total Books", total_books)
+    st.metric("Books Read", read_books)
+    st.metric("Books Unread", unread_books)
+
+    if total_books:
+        fig = go.Figure(data=[go.Pie(labels=["Read", "Unread"], values=[read_books, unread_books], hole=0.4)])
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        st.info("No books in library to generate statistics.")
+
+st.write("©️ 2024 Personal Library Manager | Developed by Farida Bano")
